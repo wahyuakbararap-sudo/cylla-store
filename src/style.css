@@ -291,17 +291,18 @@ th {
   font-size: 13px;
 }
 
-:root {
-  --bg: #f4f7fb;
-  --card: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --primary: #4f46e5;
-  --primary-dark: #4338ca;
-  --danger: #ef4444;
-  --success: #16a34a;
-  --warning: #ca8a04;
-  --border: #e2e8f0;
+:root{
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --sidebar:#111827;
+  --primary:#ee4d2d;
+  --primary-hover:#d94324;
+  --text:#111827;
+  --muted:#6b7280;
+  --success:#16a34a;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --border:#e5e7eb;
 }
 
 body {
