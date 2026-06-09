@@ -12,6 +12,7 @@
     "vite": "^8.0.12"
   },
   "dependencies": {
+    "openai": "^6.42.0",
     "papaparse": "^5.5.3"
   }
 }

@@ -8,6 +8,7 @@ import { StockPage, setupStockEvents } from './pages/stock.js';
 import { FinancePage, setupFinanceEvents, } from './pages/finance.js';
 import { StrategyPage, setupStrategyEvents, } from './pages/strategy.js';
 import { IntegrationPage, setupIntegrationEvents, } from './pages/integration.js';
+import { AIAnalysisPage, setupAIAnalysisEvents, } from './pages/aiAnalysis.js';
 
 const app = document.getElementById('app');
 
@@ -19,6 +20,7 @@ function renderPage(page = 'dashboard') {
   else if (page === 'finance') content = FinancePage();
   else if (page === 'strategy') content = StrategyPage();
   else if (page === 'integration') content = IntegrationPage();
+  else if (page === 'ai') content = AIAnalysisPage();
   else content = DashboardPage();
 
   renderLayout(app, content, page, () => renderPage(page));
@@ -30,6 +32,7 @@ function renderPage(page = 'dashboard') {
   if (page === 'finance') setupFinanceEvents();
   if (page === 'strategy') setupStrategyEvents();
   if (page === 'integration') setupIntegrationEvents();
+  if (page === 'ai') setupAIAnalysisEvents();
 }
 
 function setupNavigation() {

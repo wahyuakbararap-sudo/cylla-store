@@ -650,3 +650,22 @@ body.dark .empty-state {
     align-items: stretch;
   }
 }
+
+.ai-result {
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.ai-result h3 {
+  margin: 18px 0 8px;
+  color: var(--accent);
+}
+
+.ai-result p {
+  margin-bottom: 10px;
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
