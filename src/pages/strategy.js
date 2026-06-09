@@ -12,59 +12,33 @@ function rupiah(n) {
 export function StrategyPage() {
   const sales = getSales();
 
-  const productMap = {};
-
+  const map = {};
   sales.forEach((item) => {
-    if (!productMap[item.product]) {
-      productMap[item.product] = {
-        qty: 0,
-        revenue: 0,
-      };
+    if (!map[item.product]) {
+      map[item.product] = { qty: 0, revenue: 0 };
     }
 
-    productMap[item.product].qty += item.qty;
-    productMap[item.product].revenue += item.qty * item.price;
+    map[item.product].qty += Number(item.qty);
+    map[item.product].revenue += Number(item.qty) * Number(item.price);
   });
 
-  const products = Object.entries(productMap)
-    .map(([name, data]) => ({
-      name,
-      ...data,
-    }))
+  const products = Object.entries(map)
+    .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => b.revenue - a.revenue);
 
-  const bestProduct = products[0];
-  const worstProduct = products[products.length - 1];
-
-  const totalRevenue = products.reduce(
-    (sum, item) => sum + item.revenue,
-    0
-  );
-
-  const score = Math.min(
-    100,
-    Math.round(
-      (totalRevenue / 1000000) * 50 +
-      sales.length * 3
-    )
-  );
+  const best = products[0];
+  const worst = products[products.length - 1];
 
   return `
     <div class="grid kpi">
-
-      <div class="card">
-        <p>Skor Kesehatan</p>
-        <h1>${score}/100</h1>
-      </div>
-
       <div class="card">
         <p>Produk Terbaik</p>
-        <h1>${bestProduct?.name || '-'}</h1>
+        <h1>${best?.name || '-'}</h1>
       </div>
 
       <div class="card">
-        <p>Perlu Perhatian</p>
-        <h1>${worstProduct?.name || '-'}</h1>
+        <p>Produk Terlemah</p>
+        <h1>${worst?.name || '-'}</h1>
       </div>
 
       <div class="card">
@@ -72,85 +46,68 @@ export function StrategyPage() {
         <h1>${products.length}</h1>
       </div>
 
+      <div class="card">
+        <p>Total Omzet</p>
+        <h1>${rupiah(products.reduce((a, b) => a + b.revenue, 0))}</h1>
+      </div>
     </div>
 
     <div class="card">
       <h2>Produk Terlaris</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Produk</th>
-            <th>Terjual</th>
-            <th>Omzet</th>
-          </tr>
-        </thead>
+      ${
+        products.length
+          ? `
+            <table>
+              <thead>
+                <tr>
+                  <th>Produk</th>
+                  <th>Terjual</th>
+                  <th>Omzet</th>
+                </tr>
+              </thead>
 
-        <tbody>
-          ${products.slice(0, 5).map((item) => `
-            <tr>
-              <td>${item.name}</td>
-              <td>${item.qty}</td>
-              <td>${rupiah(item.revenue)}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+              <tbody>
+                ${products.slice(0, 5).map((item) => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${item.qty}</td>
+                    <td>${rupiah(item.revenue)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `
+          : `<div class="empty-state">Belum ada data produk.</div>`
+      }
     </div>
 
     <div class="card">
-      <h2>Rekomendasi Bisnis</h2>
-
-      <div class="strategy-list">
-
-        <div class="strategy-item">
-          📈 Fokuskan promosi pada
-          <strong>${bestProduct?.name || '-'}</strong>
-          karena menjadi penyumbang omzet terbesar.
-        </div>
-
-        <div class="strategy-item">
-          📦 Evaluasi
-          <strong>${worstProduct?.name || '-'}</strong>
-          karena performanya paling rendah.
-        </div>
-
-        <div class="strategy-item">
-          🎯 Tingkatkan rata-rata order
-          dengan bundling produk premium.
-        </div>
-
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Rencana Tindakan</h2>
+      <h2>Catatan Strategi</h2>
 
       <textarea
         id="actionPlan"
-        rows="6"
-        placeholder="Tulis strategi bisnis..."
+        rows="8"
+        placeholder="Contoh: Fokus push Canva Pro, restock Netflix, bikin promo bundling..."
       >${localStorage.getItem('cylla_plan') || ''}</textarea>
 
       <button id="savePlanBtn">
-        Simpan Rencana
+        Simpan Catatan
       </button>
     </div>
   `;
 }
 
 export function setupStrategyEvents() {
-  document
-    .getElementById('savePlanBtn')
-    ?.addEventListener('click', () => {
+  const btn = document.getElementById('savePlanBtn');
 
-      localStorage.setItem(
-        'cylla_plan',
-        document.getElementById('actionPlan').value
-      );
+  if (!btn) return;
 
-      showToast(
-        'Rencana berhasil disimpan'
-      );
-    });
+  btn.onclick = () => {
+    const value = document.getElementById('actionPlan').value;
+
+    localStorage.setItem('cylla_plan', value);
+
+    showToast('Catatan strategi berhasil disimpan');
+  };
 }

@@ -2,21 +2,11 @@ import './style.css';
 
 import { login, currentUser } from './auth/auth.js';
 import { renderLayout } from './components/layout.js';
-
-import {
-  DashboardPage,
-  setupDashboardEvents,
-} from './pages/dashboard.js';
+import { DashboardPage, setupDashboardEvents, } from './pages/dashboard.js';
 import { SalesPage, setupSalesEvents } from './pages/sales.js';
 import { StockPage, setupStockEvents } from './pages/stock.js';
-import {
-  FinancePage,
-  setupFinanceEvents,
-} from './pages/finance.js';
-import {
-  StrategyPage,
-  setupStrategyEvents,
-} from './pages/strategy.js';
+import { FinancePage, setupFinanceEvents, } from './pages/finance.js';
+import { StrategyPage, setupStrategyEvents, } from './pages/strategy.js';
 
 const app = document.getElementById('app');
 
