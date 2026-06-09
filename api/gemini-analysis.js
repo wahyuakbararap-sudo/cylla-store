@@ -20,10 +20,9 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-    const models = [
-  'gemini-2.0-flash',
-  'gemini-2.5-flash',
-];
+    const model = genAI.getGenerativeModel({
+  model: 'gemini-2.0-flash',
+});
 
     const prompt = `
 Kamu adalah analis bisnis untuk dashboard toko online bernama Cylla Store.
