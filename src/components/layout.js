@@ -12,6 +12,7 @@ export function renderLayout(app, pageContent, activePage = 'dashboard', refresh
     { id: 'stock', icon: '🏪', label: 'Stok' },
     { id: 'finance', icon: '💰', label: 'Keuangan' },
     { id: 'strategy', icon: '💡', label: 'Strategi' },
+    { id: 'integration', icon: '🔌', label: 'Integrasi' },
   ];
 
   const title = navs.find((item) => item.id === activePage)?.label || 'Dashboard';

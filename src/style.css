@@ -919,3 +919,21 @@ body.dark .log-item {
     min-width: 100%;
   }
 }
+
+.import-box {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.import-box input {
+  margin-top: 0;
+}
+
+@media (max-width: 700px) {
+  .import-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

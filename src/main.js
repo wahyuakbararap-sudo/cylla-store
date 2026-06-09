@@ -7,6 +7,7 @@ import { SalesPage, setupSalesEvents } from './pages/sales.js';
 import { StockPage, setupStockEvents } from './pages/stock.js';
 import { FinancePage, setupFinanceEvents, } from './pages/finance.js';
 import { StrategyPage, setupStrategyEvents, } from './pages/strategy.js';
+import { IntegrationPage, setupIntegrationEvents, } from './pages/integration.js';
 
 const app = document.getElementById('app');
 
@@ -17,6 +18,7 @@ function renderPage(page = 'dashboard') {
   else if (page === 'stock') content = StockPage();
   else if (page === 'finance') content = FinancePage();
   else if (page === 'strategy') content = StrategyPage();
+  else if (page === 'integration') content = IntegrationPage();
   else content = DashboardPage();
 
   renderLayout(app, content, page, () => renderPage(page));
@@ -27,6 +29,7 @@ function renderPage(page = 'dashboard') {
   if (page === 'stock') setupStockEvents();
   if (page === 'finance') setupFinanceEvents();
   if (page === 'strategy') setupStrategyEvents();
+  if (page === 'integration') setupIntegrationEvents();
 }
 
 function setupNavigation() {
