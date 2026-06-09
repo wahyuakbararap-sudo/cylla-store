@@ -7,14 +7,14 @@ export function renderLayout(app, pageContent, activePage = 'dashboard', refresh
   const user = currentUser();
 
   const navs = [
-    { id: 'dashboard', icon: '📊', label: 'Dashboard' },
-    { id: 'sales', icon: '📦', label: 'Penjualan' },
-    { id: 'stock', icon: '🏪', label: 'Stok' },
-    { id: 'finance', icon: '💰', label: 'Keuangan' },
-    { id: 'strategy', icon: '💡', label: 'Strategi' },
-    { id: 'integration', icon: '🔌', label: 'Integrasi' },
-    { id: 'ai', icon: '🧠', label: 'AI Analyst' },
-  ];
+  { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+  { id: 'sales', icon: '📦', label: 'Penjualan' },
+  { id: 'stock', icon: '🏪', label: 'Stok' },
+  { id: 'finance', icon: '💰', label: 'Keuangan' },
+  { id: 'integration', icon: '🔌', label: 'Integrasi' },
+  { id: 'ai', icon: '🧠', label: 'AI Analyst' },
+  { id: 'settings', icon: '⚙️', label: 'Settings' },
+];
 
   const title = navs.find((item) => item.id === activePage)?.label || 'Dashboard';
 
@@ -37,13 +37,6 @@ export function renderLayout(app, pageContent, activePage = 'dashboard', refresh
         </div>
 
         <div class="top-actions">
-          <button id="darkBtn" class="soft">🌙</button>
-          <button id="backupBtn" class="soft">Backup</button>
-          <label class="import-btn">
-            Import
-            <input id="importFile" type="file" accept="application/json" hidden />
-          </label>
-          <button id="shopeeBtn" class="soft">Shopee</button>
           <button id="logoutBtn" class="danger">Logout</button>
         </div>
       </header>
@@ -53,17 +46,4 @@ export function renderLayout(app, pageContent, activePage = 'dashboard', refresh
   `;
 
   document.getElementById('logoutBtn').onclick = logout;
-  document.getElementById('backupBtn').onclick = exportBackup;
-  document.getElementById('shopeeBtn').onclick = connectShopee;
-
-  document.getElementById('darkBtn').onclick = () => {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('cylla_dark', document.body.classList.contains('dark') ? 'yes' : 'no');
-    showToast('Tema berhasil diganti');
-  };
-
-  document.getElementById('importFile').onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) importBackup(file, refreshPage);
-  };
 }

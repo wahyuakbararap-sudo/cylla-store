@@ -12,7 +12,7 @@
     "vite": "^8.0.12"
   },
   "dependencies": {
-    "openai": "^6.42.0",
+    "chart.js": "^4.5.1",
     "papaparse": "^5.5.3"
   }
 }

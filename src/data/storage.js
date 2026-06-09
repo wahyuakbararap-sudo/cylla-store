@@ -30,18 +30,6 @@ export function saveStocks(data) {
   localStorage.setItem('cylla_stocks', JSON.stringify(data));
 }
 
-export function getSession() {
-  return JSON.parse(localStorage.getItem('cylla_session'));
-}
-
-export function saveSession(user) {
-  localStorage.setItem('cylla_session', JSON.stringify(user));
-}
-
-export function clearSession() {
-  localStorage.removeItem('cylla_session');
-}
-
 export function getFinance() {
   const data = localStorage.getItem('cylla_finance');
 
@@ -53,11 +41,7 @@ export function getFinance() {
       other: 0,
     };
 
-    localStorage.setItem(
-      'cylla_finance',
-      JSON.stringify(seed)
-    );
-
+    localStorage.setItem('cylla_finance', JSON.stringify(seed));
     return seed;
   }
 
@@ -65,10 +49,7 @@ export function getFinance() {
 }
 
 export function saveFinance(data) {
-  localStorage.setItem(
-    'cylla_finance',
-    JSON.stringify(data)
-  );
+  localStorage.setItem('cylla_finance', JSON.stringify(data));
 }
 
 export function getTarget() {
@@ -92,5 +73,17 @@ export function addLog(text) {
     date: new Date().toLocaleString('id-ID'),
   });
 
-  localStorage.setItem('cylla_logs', JSON.stringify(logs.slice(0, 50)));
+  localStorage.setItem('cylla_logs', JSON.stringify(logs.slice(0, 100)));
+}
+
+export function getSession() {
+  return JSON.parse(localStorage.getItem('cylla_session'));
+}
+
+export function saveSession(user) {
+  localStorage.setItem('cylla_session', JSON.stringify(user));
+}
+
+export function clearSession() {
+  localStorage.removeItem('cylla_session');
 }

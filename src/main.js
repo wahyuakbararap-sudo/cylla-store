@@ -2,13 +2,18 @@ import './style.css';
 
 import { login, currentUser } from './auth/auth.js';
 import { renderLayout } from './components/layout.js';
-import { DashboardPage, setupDashboardEvents, } from './pages/dashboard.js';
+
+import { DashboardPage, setupDashboardEvents } from './pages/dashboard.js';
 import { SalesPage, setupSalesEvents } from './pages/sales.js';
 import { StockPage, setupStockEvents } from './pages/stock.js';
-import { FinancePage, setupFinanceEvents, } from './pages/finance.js';
-import { StrategyPage, setupStrategyEvents, } from './pages/strategy.js';
-import { IntegrationPage, setupIntegrationEvents, } from './pages/integration.js';
-import { AIAnalysisPage, setupAIAnalysisEvents, } from './pages/aiAnalysis.js';
+import { FinancePage, setupFinanceEvents } from './pages/finance.js';
+import { IntegrationPage, setupIntegrationEvents } from './pages/integration.js';
+import { AIPage, setupAIEvents } from './pages/ai.js';
+import { SettingsPage, setupSettingsEvents } from './pages/settings.js';
+
+if (localStorage.getItem('cylla_dark') === 'yes') {
+  document.body.classList.add('dark');
+}
 
 const app = document.getElementById('app');
 
@@ -18,9 +23,10 @@ function renderPage(page = 'dashboard') {
   if (page === 'sales') content = SalesPage();
   else if (page === 'stock') content = StockPage();
   else if (page === 'finance') content = FinancePage();
-  else if (page === 'strategy') content = StrategyPage();
+  else if (page === 'ai') content = AIPage();
   else if (page === 'integration') content = IntegrationPage();
   else if (page === 'ai') content = AIAnalysisPage();
+  else if (page === 'settings') content = SettingsPage();
   else content = DashboardPage();
 
   renderLayout(app, content, page, () => renderPage(page));
@@ -30,9 +36,11 @@ function renderPage(page = 'dashboard') {
   if (page === 'sales') setupSalesEvents();
   if (page === 'stock') setupStockEvents();
   if (page === 'finance') setupFinanceEvents();
-  if (page === 'strategy') setupStrategyEvents();
+  if (page === 'ai') setupAIEvents();
   if (page === 'integration') setupIntegrationEvents();
   if (page === 'ai') setupAIAnalysisEvents();
+  if (page === 'settings') setupSettingsEvents();
+  if (page === 'dashboard') setupDashboardEvents();
 }
 
 function setupNavigation() {

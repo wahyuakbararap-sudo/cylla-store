@@ -1,4 +1,4 @@
-import { getStocks, saveStocks } from '../data/storage.js';
+import { getStocks, saveStocks, addLog } from '../data/storage.js';
 import { isAdmin } from '../auth/auth.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
@@ -73,7 +73,7 @@ function renderStockTable() {
         <tr>
           <th>Produk</th>
           <th>Awal</th>
-          <th>Masuk</th>
+          <th>Masuk</th>openStockModal()
           <th>Terjual</th>
           <th>Sisa</th>
           <th>Status</th>
@@ -188,9 +188,16 @@ function openStockModal(item = null) {
       }
 
       saveStocks(stocks);
-      closeModal();
-      showToast(isEdit ? 'Stok berhasil diupdate' : 'Produk berhasil ditambah');
-      renderStockTable();
+
+if (isEdit) {
+  addLog(`Mengedit stok ${product}`);
+} else {
+  addLog(`Menambah stok ${product}`);
+}
+
+closeModal();
+showToast(isEdit ? 'Stok berhasil diupdate' : 'Produk berhasil ditambah');
+renderStockTable();
     }
   );
 }
@@ -200,8 +207,9 @@ function setupStockButtons() {
     btn.onclick = () => {
       const id = Number(btn.dataset.id);
       saveStocks(getStocks().filter((item) => item.id !== id));
-      showToast('Produk berhasil dihapus');
-      renderStockTable();
+addLog('Menghapus data stok');
+showToast('Produk berhasil dihapus');
+renderStockTable();
     };
   });
 

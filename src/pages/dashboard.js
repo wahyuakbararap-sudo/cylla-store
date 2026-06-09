@@ -8,6 +8,10 @@ import {
 } from '../data/storage.js';
 
 import { showToast } from '../components/toast.js';
+import Chart from 'chart.js/auto';
+
+let revenueChart = null;
+let marketChart = null;
 
 function rupiah(n) {
   return new Intl.NumberFormat('id-ID', {
@@ -15,6 +19,10 @@ function rupiah(n) {
     currency: 'IDR',
     maximumFractionDigits: 0,
   }).format(n);
+}
+
+function getStockLeft(item) {
+  return Number(item.initial) + Number(item.incoming) - Number(item.sold);
 }
 
 export function DashboardPage() {
@@ -37,6 +45,8 @@ export function DashboardPage() {
     .filter((item) => item.date.startsWith(month))
     .reduce((sum, item) => sum + item.qty * item.price, 0);
 
+  const todayOrders = doneSales.filter((item) => item.date === today).length;
+
   const totalCost =
     Number(finance.ads || 0) +
     Number(finance.fee || 0) +
@@ -45,10 +55,7 @@ export function DashboardPage() {
 
   const profit = monthRevenue - totalCost;
 
-  const lowStocks = stocks.filter((item) => {
-    const left = Number(item.initial) + Number(item.incoming) - Number(item.sold);
-    return left < 10;
-  });
+  const lowStocks = stocks.filter((item) => getStockLeft(item) < 10);
 
   const targetPercent = target > 0
     ? Math.min(100, Math.round((monthRevenue / target) * 100))
@@ -57,7 +64,7 @@ export function DashboardPage() {
   return `
     <div class="dashboard-hero">
       <div>
-        <p class="muted">Ringkasan bulan ini</p>
+        <p class="muted">Omzet bulan ini</p>
         <h1>${rupiah(monthRevenue)}</h1>
         <span class="hero-badge">Target tercapai ${targetPercent}%</span>
       </div>
@@ -88,8 +95,8 @@ export function DashboardPage() {
       </div>
 
       <div class="card">
-        <p>Order Selesai</p>
-        <h1>${doneSales.length}</h1>
+        <p>Order Hari Ini</p>
+        <h1>${todayOrders}</h1>
       </div>
 
       <div class="card">
@@ -98,20 +105,20 @@ export function DashboardPage() {
       </div>
 
       <div class="card">
-        <p>Stok Perhatian</p>
+        <p>Stok Menipis</p>
         <h1>${lowStocks.length}</h1>
       </div>
     </div>
 
     <div class="grid two">
       <div class="card">
-        <h2>Tren Penjualan</h2>
-        ${renderRevenueTrend(doneSales)}
+        <h2>Tren Omzet 7 Hari</h2>
+        <canvas id="revenueChart"></canvas>
       </div>
 
       <div class="card">
-        <h2>Marketplace Terbaik</h2>
-        ${renderMarketList(doneSales)}
+        <h2>Distribusi Marketplace</h2>
+        <canvas id="marketChart"></canvas>
       </div>
     </div>
 
@@ -129,72 +136,6 @@ export function DashboardPage() {
   `;
 }
 
-function renderRevenueTrend(sales) {
-  const map = {};
-
-  sales.forEach((item) => {
-    map[item.date] = (map[item.date] || 0) + item.qty * item.price;
-  });
-
-  const rows = Object.entries(map).slice(-7);
-
-  if (!rows.length) {
-    return `<div class="empty-state">Belum ada data omzet.</div>`;
-  }
-
-  const max = Math.max(...rows.map(([, value]) => value));
-
-  return `
-    <div class="mini-chart">
-      ${rows.map(([date, value]) => `
-        <div class="mini-bar">
-          <div
-            class="mini-fill"
-            style="height:${Math.max(8, (value / max) * 120)}px"
-            title="${rupiah(value)}"
-          ></div>
-          <small>${date.slice(5)}</small>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderMarketList(sales) {
-  const map = {};
-
-  sales.forEach((item) => {
-    map[item.marketplace] = (map[item.marketplace] || 0) + item.qty * item.price;
-  });
-
-  const rows = Object.entries(map).sort((a, b) => b[1] - a[1]);
-
-  if (!rows.length) {
-    return `<div class="empty-state">Belum ada marketplace aktif.</div>`;
-  }
-
-  const total = rows.reduce((sum, [, value]) => sum + value, 0);
-
-  return `
-    <div class="market-list">
-      ${rows.map(([market, value]) => {
-        const percent = total ? Math.round((value / total) * 100) : 0;
-
-        return `
-          <div class="market-item">
-            <div>
-              <strong>${market}</strong>
-              <p class="muted">${rupiah(value)}</p>
-            </div>
-
-            <span class="badge yellow">${percent}%</span>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
-}
-
 function renderLatestSales(sales) {
   if (!sales.length) {
     return `<div class="empty-state">Belum ada penjualan.</div>`;
@@ -206,15 +147,17 @@ function renderLatestSales(sales) {
         <tr>
           <th>Tanggal</th>
           <th>Produk</th>
+          <th>Marketplace</th>
           <th>Total</th>
         </tr>
       </thead>
 
       <tbody>
-        ${sales.slice(-5).reverse().map((item) => `
+        ${sales.slice(-6).reverse().map((item) => `
           <tr>
             <td>${item.date}</td>
             <td>${item.product}</td>
+            <td>${item.marketplace}</td>
             <td>${rupiah(item.qty * item.price)}</td>
           </tr>
         `).join('')}
@@ -248,5 +191,87 @@ export function setupDashboardEvents() {
     showToast('Target bulanan berhasil disimpan');
 
     setTimeout(() => location.reload(), 500);
+  });
+
+  renderCharts();
+}
+
+function renderCharts() {
+  const sales = getSales().filter((item) => item.status === 'Selesai');
+
+  const last7Days = [...Array(7)].map((_, index) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - index));
+    return d.toISOString().slice(0, 10);
+  });
+
+  const revenueData = last7Days.map((date) => {
+    return sales
+      .filter((item) => item.date === date)
+      .reduce((sum, item) => sum + item.qty * item.price, 0);
+  });
+
+  const marketMap = {};
+  sales.forEach((item) => {
+    marketMap[item.marketplace] =
+      (marketMap[item.marketplace] || 0) + item.qty * item.price;
+  });
+
+  const revenueCanvas = document.getElementById('revenueChart');
+  const marketCanvas = document.getElementById('marketChart');
+
+  if (!revenueCanvas || !marketCanvas) return;
+
+  if (revenueChart) revenueChart.destroy();
+  if (marketChart) marketChart.destroy();
+
+  revenueChart = new Chart(revenueCanvas, {
+    type: 'line',
+    data: {
+      labels: last7Days.map((date) => date.slice(5)),
+      datasets: [
+        {
+          label: 'Omzet',
+          data: revenueData,
+          tension: 0.35,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: (value) => 'Rp ' + Number(value).toLocaleString('id-ID'),
+          },
+        },
+      },
+    },
+  });
+
+  marketChart = new Chart(marketCanvas, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(marketMap),
+      datasets: [
+        {
+          data: Object.values(marketMap),
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+        },
+      },
+    },
   });
 }
