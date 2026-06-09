@@ -69,7 +69,19 @@ export function setupAIEvents() {
         }),
       });
 
-      const data = await response.json();
+      const raw = await response.text();
+
+let data = {};
+
+try {
+  data = raw ? JSON.parse(raw) : {};
+} catch {
+  throw new Error(raw || 'Server tidak mengembalikan JSON.');
+}
+
+if (!response.ok) {
+  throw new Error(data.error || 'Gagal generate analisa');
+}
 
       if (!response.ok) {
         throw new Error(data.error || 'Gagal generate analisa');
