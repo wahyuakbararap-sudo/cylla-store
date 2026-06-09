@@ -116,17 +116,26 @@ export function StrategyPage() {
       </div>
     </div>
 
-    <div class="card">
-      <h2>Catatan Strategi</h2>
+    <div class="grid two">
+  <div class="card">
+    <h2>Tulis Strategi Baru</h2>
 
-      <textarea
-        id="actionPlan"
-        rows="7"
-        placeholder="Contoh: Fokus push Canva Pro, restock Netflix, bikin promo bundling..."
-      >${localStorage.getItem('cylla_plan') || ''}</textarea>
+    <textarea
+      id="actionPlan"
+      rows="7"
+      placeholder="Contoh: Fokus push Canva Pro minggu ini..."
+    ></textarea>
 
-      <button id="savePlanBtn">Simpan Catatan</button>
+    <button id="savePlanBtn">Tambah Strategi</button>
+  </div>
+
+  <div class="card">
+    <h2>Daftar Strategi</h2>
+    <div id="strategyNotes">
+      ${renderStrategyNotes()}
     </div>
+  </div>
+</div>
   `;
 }
 
@@ -250,9 +259,57 @@ function renderWeakProducts(products) {
 
 export function setupStrategyEvents() {
   document.getElementById('savePlanBtn')?.addEventListener('click', () => {
-    const value = document.getElementById('actionPlan').value;
+    const textarea = document.getElementById('actionPlan');
+    const text = textarea.value.trim();
 
-    localStorage.setItem('cylla_plan', value);
-    showToast('Catatan strategi berhasil disimpan');
+    if (!text) {
+      showToast('Tulis strategi dulu', 'error');
+      return;
+    }
+
+    const notes = getStrategyNotes();
+
+    notes.unshift({
+      id: Date.now(),
+      text,
+      date: new Date().toLocaleString('id-ID'),
+    });
+
+    saveStrategyNotes(notes);
+
+    textarea.value = '';
+
+    document.getElementById('strategyNotes').innerHTML = renderStrategyNotes();
+
+    showToast('Strategi berhasil ditambahkan');
   });
+}
+
+function getStrategyNotes() {
+  return JSON.parse(localStorage.getItem('cylla_strategy_notes') || '[]');
+}
+
+function saveStrategyNotes(notes) {
+  localStorage.setItem('cylla_strategy_notes', JSON.stringify(notes));
+}
+
+function renderStrategyNotes() {
+  const notes = getStrategyNotes();
+
+  if (!notes.length) {
+    return `<div class="empty-state">Belum ada catatan strategi.</div>`;
+  }
+
+  return `
+    <div class="strategy-list">
+      ${notes.map((note) => `
+        <div class="strategy-item">
+          <div>
+            <strong>${note.text}</strong>
+            <p class="muted">${note.date}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
